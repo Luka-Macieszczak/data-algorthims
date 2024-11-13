@@ -3,16 +3,18 @@
 #include <vector>
 #include <random>
 #include <cmath>
+#include "Value.h"
 
 class Neuron {
-    double activation_bias;
-    std::vector<double> weights;
+    Value* activation_bias;
+    std::vector<Value*> weights;
 
-    double squash(double out);
+    Value* sum(std::vector<Value*>& sum_elements);
+
     public:
     Neuron(unsigned int input_params);
     ~Neuron();
-    double out(std::vector<double> x);
+    Value* out(std::vector<Value*> x);
 };
 
 #endif

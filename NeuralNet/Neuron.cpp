@@ -3,20 +3,44 @@
 
 Neuron::Neuron(unsigned int input_params) {
     // Generate random floats between -1 and 1
-    activation_bias = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/2)) - 1;
+    activation_bias = new Value(static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/2)) - 1);
 
-    // Parallelism speed up here
-    for(int i = 0; i < input_params; ++i) {
-        weights[i] = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/2)) - 1;
+    // Possible parallelism speed up here
+    for(int _ = 0; _ < input_params; ++_) {
+        weights.push_back(new Value(static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/2)) - 1));
     }
 }
 
-// use tanh(x) as squash function
-double Neuron::squash(double out) {
-    return (std::exp(out) - std::exp(-out)) / (std::exp(out) + std::exp(-out));
+Neuron::~Neuron() {
+    delete (activation_bias);
+    for(auto w : weights) {
+        delete (w);
+    }
 }
 
-double Neuron::out(std::vector<double> x) {
+// Compute sum as a complete binary tree with about 2n nodes
+// Squish adjacent elements into single values until reaching 1
+// Height is logarithmic opposed to linear
+Value* Neuron::sum(std::vector<Value*>& sum_elements) {
+    if(sum_elements.size() == 1) {
+        return sum_elements[0];
+    }
+
+    std::vector<Value*> intermediate_values;
+
+    for(int i = 0; i < sum_elements.size(); i += 2) {
+        if(i + 1 >= sum_elements.size()){
+            intermediate_values.push_back(sum_elements[i]);
+            break;
+        }
+
+        intermediate_values.push_back(*sum_elements[i] + *sum_elements[i + 1]);
+    }
+
+    return sum(intermediate_values);
+}
+
+Value* Neuron::out(std::vector<Value*> x) {
     // Take dot product, add activaion, and squash
     // Also potential speed up
     if(x.size() != weights.size()) {
@@ -24,10 +48,13 @@ double Neuron::out(std::vector<double> x) {
         return 0; 
     }
 
-    double out = activation_bias;
+    std::vector<Value*> sum_elements;
+
     for(int i = 0; i < weights.size(); ++i) {
-        out += weights[i] * x[i];
+        sum_elements.push_back((*weights[i]) * (*x[i]));
     }
 
-    return squash(out);
+    Value* out = sum(sum_elements);
+
+    return out->tanh();
 }
