@@ -16,7 +16,7 @@ class MLP {
 
     // x should have length schema[0]
     // returns vector with length schema[schem.size() - 1]
-    std::vector<std::vector<Value*>> out(std::vector<Value*> x);
+    std::vector<Value*> out(std::vector<Value*> x);
 };
 
 #endif

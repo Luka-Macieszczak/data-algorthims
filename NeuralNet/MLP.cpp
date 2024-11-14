@@ -11,10 +11,9 @@ MLP::~MLP(){
     }
 }
 
-std::vector<std::vector<Value*>> MLP::out(std::vector<Value*> x) {
-    std::vector<std::vector<Value*>> results{x};
+std::vector<Value*> MLP::out(std::vector<Value*> x) {
     for(auto& layer : layers) {
-        results.push_back(layer->out(results[results.size() - 1]));
+        x = layer->out(x);
     }
-    return results;
+    return x;
 }

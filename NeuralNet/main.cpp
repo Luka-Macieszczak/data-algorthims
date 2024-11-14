@@ -56,10 +56,10 @@ void test_mlp() {
         x.push_back(new Value(static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/2)) - 1));
     }
 
-    MLP test{std::vector<unsigned int>{6, 4, 4, 1}};
-    std::vector<std::vector<Value*>> res = test.out(x);
-    res[res.size() - 1][res[res.size() - 1].size() - 1]->backward();
-    printf("result val: %f", res[res.size() - 1][res[res.size() - 1].size() - 1]->get_data());
+    MLP test{std::vector<unsigned int>{6, 16, 16, 1}};
+    auto res = test.out(x);
+    res[0]->backward();
+    printf("result val: %f", res[0]->get_data());
 
     for(auto& v : x) {
         printf("val: %f     grad: %f\n", v->get_data(), v->get_grad());
